@@ -42,3 +42,9 @@ liquibase:
     default:
       enabled: true
       change-log: classpath:db/changelog/db.changelog-master.xml
+
+smtp:
+  enabled: true
+  host: localhost
+  port: 1025
+  from-address: no-reply@ecommerce.example.com

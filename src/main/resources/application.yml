@@ -52,3 +52,13 @@ endpoints:
 otel:
   traces:
     exporter: none
+
+smtp:
+  enabled: ${SMTP_ENABLED:true}
+  host: ${SMTP_HOST:localhost}
+  port: ${SMTP_PORT:1025}
+  from-address: ${SMTP_FROM_ADDRESS:no-reply@ecommerce.example.com}
+  username: ${SMTP_USERNAME:}
+  password: ${SMTP_PASSWORD:}
+  ssl: ${SMTP_SSL:false}
+  starttls: ${SMTP_STARTTLS:false}

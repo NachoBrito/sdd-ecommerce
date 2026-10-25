@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OrderCreatedEvent",
+  "description": "Boundary contract for domain event emitted when an order is created, triggering customer notifications.",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "orderId",
+    "totalAmountInCents",
+    "currency",
+    "timestamp"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event instance"
+    },
+    "eventType": {
+      "type": "string",
+      "const": "order.created.v1",
+      "description": "Constant domain event type identifier"
+    },
+    "orderId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Identifier of the newly created order"
+    },
+    "totalAmountInCents": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total monetary amount of the order in cents"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$",
+      "description": "ISO-4217 three-letter currency code"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the event was generated"
+    },
+    "traceId": {
+      "type": "string",
+      "description": "Distributed tracing correlation identifier"
+    }
+  },
+  "additionalProperties": false
+}

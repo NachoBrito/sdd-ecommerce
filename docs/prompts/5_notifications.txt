@@ -1,0 +1,9 @@
+/00-speckit.all
+
+Define a new feature for the e-commerce system: notifications
+
+1. Create a notification service that accepts multiple transports, SMTP initially.
+2. When an order is created, the notification service sends the customer the order details.
+3. Each transport uses its own template. The SMTP transport will have an html template.
+
+
