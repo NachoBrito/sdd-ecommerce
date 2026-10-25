@@ -1,0 +1,10 @@
+.git
+.gradle
+build
+.specify
+.agents
+specs
+docs
+*.md
+.gitignore
+.dockerignore

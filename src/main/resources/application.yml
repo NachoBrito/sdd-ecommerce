@@ -1,0 +1,54 @@
+micronaut:
+  application:
+    name: "SDD Ecommerce"
+  server:
+    port: 8080
+    cors:
+      enabled: true
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+        descriptions: true
+        step: PT1M
+
+micrometer:
+  observation:
+    http:
+      server:
+        enabled: true
+      client:
+        enabled: true
+
+datasources:
+  default:
+    db-type: mariadb
+    dialect: MYSQL
+    driver-class-name: org.mariadb.jdbc.Driver
+
+liquibase:
+  datasources:
+    default:
+      enabled: true
+      change-log: classpath:db/changelog/db.changelog-master.xml
+
+rabbitmq:
+  addresses:
+    - localhost:5672
+
+endpoints:
+  all:
+    enabled: true
+    sensitive: false
+  health:
+    enabled: true
+    sensitive: false
+    details-visible: ANONYMOUS
+  prometheus:
+    enabled: true
+    sensitive: false
+
+otel:
+  traces:
+    exporter: none

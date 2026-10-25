@@ -1,0 +1,180 @@
+openapi: 3.1.0
+info:
+  title: SDD Ecommerce
+  version: 0.1.0
+  description: Foundation REST API for e-commerce platform built with Java 25 and Micronaut.
+paths:
+  /v1/products:
+    post:
+      summary: Create a product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Product successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List all products
+      operationId: listProducts
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+
+  /v1/products/{id}:
+    get:
+      summary: Get product by ID
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health check endpoint
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    CreateProductRequest:
+      type: object
+      required:
+        - sku
+        - name
+        - price
+        - currency
+      properties:
+        sku:
+          type: string
+          pattern: '^[A-Z0-9-]{3,32}$'
+          example: 'PROD-1001'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+          example: 'Mechanical Keyboard'
+        description:
+          type: string
+          maxLength: 1024
+          example: 'Wireless RGB mechanical keyboard'
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 99.99
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: 'USD'
+
+    ProductResponse:
+      type: object
+      required:
+        - id
+        - sku
+        - name
+        - price
+        - currency
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        sku:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, ACTIVE, ARCHIVED]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - traceId
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        traceId:
+          type: string
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: 'UP'
+        details:
+          type: object
