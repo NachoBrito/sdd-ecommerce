@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="002-add-price-in-cents" author="sdd-ecommerce">
+    <!-- 1. Expand: Add new price_in_cents column -->
+    <addColumn tableName="products">
+      <column name="price_in_cents" type="INT">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>
+
+    <!-- 2. Backfill existing rows converting decimal price to integer cents -->
+    <sql>
+      UPDATE products
+      SET price_in_cents = CAST(ROUND(price * 100) AS INT)
+      WHERE price_in_cents IS NULL;
+    </sql>
+
+    <!-- 3. Make price_in_cents NOT NULL -->
+    <addNotNullConstraint tableName="products" columnName="price_in_cents" columnDataType="INT"/>
+
+    <!-- 4. Contract: Drop obsolete decimal price column -->
+    <dropColumn tableName="products" columnName="price"/>
+
+    <rollback>
+      <addColumn tableName="products">
+        <column name="price" type="DECIMAL(10, 2)"/>
+      </addColumn>
+      <sql>
+        UPDATE products SET price = price_in_cents / 100.0 WHERE price IS NULL;
+      </sql>
+      <addNotNullConstraint tableName="products" columnName="price" columnDataType="DECIMAL(10, 2)"/>
+      <dropColumn tableName="products" columnName="price_in_cents"/>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

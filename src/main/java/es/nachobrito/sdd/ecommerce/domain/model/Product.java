@@ -1,6 +1,5 @@
 package es.nachobrito.sdd.ecommerce.domain.model;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
@@ -12,7 +11,7 @@ import java.util.UUID;
  * @param sku Stock Keeping Unit
  * @param name Human-readable product name
  * @param description Detailed description
- * @param price Product price
+ * @param priceInCents Product price in integer cents
  * @param currency ISO-4217 currency code
  * @param status Lifecycle status
  * @param createdAt Creation timestamp
@@ -23,14 +22,14 @@ public record Product(
         String sku,
         String name,
         String description,
-        BigDecimal price,
+        Integer priceInCents,
         String currency,
         ProductStatus status,
         Instant createdAt,
         Instant updatedAt
 ) {
 
-    private static final BigDecimal MIN_PRICE = new BigDecimal("0.01");
+    public static final int MIN_PRICE_IN_CENTS = 1;
 
     public Product {
         Objects.requireNonNull(id, "Product id must not be null");
@@ -40,8 +39,8 @@ public record Product(
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Product name must not be blank");
         }
-        if (price == null || price.compareTo(MIN_PRICE) < 0) {
-            throw new IllegalArgumentException("Product price must be at least " + MIN_PRICE);
+        if (priceInCents == null || priceInCents < MIN_PRICE_IN_CENTS) {
+            throw new IllegalArgumentException("Product price in cents must be at least " + MIN_PRICE_IN_CENTS);
         }
         if (currency == null || currency.length() != 3) {
             throw new IllegalArgumentException("Currency must be a valid 3-letter ISO code");
@@ -52,29 +51,31 @@ public record Product(
     }
 
     /**
-     * Factory method to create a new Product in DRAFT status.
+     * Factory method to create a new Product in DRAFT status with client-supplied UUID.
      *
+     * @param id Client-generated unique identifier
      * @param sku Stock keeping unit
      * @param name Name of the product
      * @param description Detailed description
-     * @param price Price
+     * @param priceInCents Price in integer cents
      * @param currency 3-letter ISO currency code
      * @return New Product aggregate
      */
     public static Product create(
+            final UUID id,
             final String sku,
             final String name,
             final String description,
-            final BigDecimal price,
+            final Integer priceInCents,
             final String currency
     ) {
         final Instant now = Instant.now();
         return new Product(
-                UUID.randomUUID(),
+                id,
                 sku,
                 name,
                 description,
-                price,
+                priceInCents,
                 currency,
                 ProductStatus.DRAFT,
                 now,
@@ -93,7 +94,7 @@ public record Product(
                 this.sku,
                 this.name,
                 this.description,
-                this.price,
+                this.priceInCents,
                 this.currency,
                 ProductStatus.ACTIVE,
                 this.createdAt,
@@ -112,7 +113,7 @@ public record Product(
                 this.sku,
                 this.name,
                 this.description,
-                this.price,
+                this.priceInCents,
                 this.currency,
                 ProductStatus.ARCHIVED,
                 this.createdAt,

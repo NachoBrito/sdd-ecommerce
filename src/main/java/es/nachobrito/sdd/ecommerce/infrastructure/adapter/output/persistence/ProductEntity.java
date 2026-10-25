@@ -8,7 +8,6 @@ import io.micronaut.data.annotation.MappedEntity;
 import io.micronaut.data.annotation.MappedProperty;
 import io.micronaut.serde.annotation.Serdeable;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -34,8 +33,8 @@ public class ProductEntity {
     @MappedProperty("description")
     private String description;
 
-    @MappedProperty("price")
-    private BigDecimal price;
+    @MappedProperty("price_in_cents")
+    private Integer priceInCents;
 
     @MappedProperty("currency")
     private String currency;
@@ -64,7 +63,7 @@ public class ProductEntity {
      * @param sku Stock keeping unit
      * @param name Product name
      * @param description Detailed description
-     * @param price Selling price
+     * @param priceInCents Selling price in integer cents
      * @param currency Currency code
      * @param status Lifecycle status
      * @param createdAt Creation timestamp
@@ -75,7 +74,7 @@ public class ProductEntity {
             final String sku,
             final String name,
             final String description,
-            final BigDecimal price,
+            final Integer priceInCents,
             final String currency,
             final String status,
             final Instant createdAt,
@@ -85,7 +84,7 @@ public class ProductEntity {
         this.sku = sku;
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.priceInCents = priceInCents;
         this.currency = currency;
         this.status = status;
         this.createdAt = createdAt;
@@ -124,12 +123,12 @@ public class ProductEntity {
         this.description = description;
     }
 
-    public BigDecimal getPrice() {
-        return price;
+    public Integer getPriceInCents() {
+        return priceInCents;
     }
 
-    public void setPrice(final BigDecimal price) {
-        this.price = price;
+    public void setPriceInCents(final Integer priceInCents) {
+        this.priceInCents = priceInCents;
     }
 
     public String getCurrency() {

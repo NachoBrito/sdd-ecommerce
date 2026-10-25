@@ -2,23 +2,31 @@ package es.nachobrito.sdd.ecommerce.domain.port.inbound;
 
 import es.nachobrito.sdd.ecommerce.domain.model.Product;
 
-import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
- * Inbound port driving the creation of new products.
+ * Inbound port for creating a new product aggregate in the catalog.
  */
 @FunctionalInterface
 public interface CreateProductUseCase {
 
     /**
-     * Creates a new product catalog aggregate.
+     * Creates and persists a new product with client-generated identifier.
      *
-     * @param sku Stock Keeping Unit
-     * @param name Product name
-     * @param description Detailed description
-     * @param price Selling price
-     * @param currency 3-letter ISO currency code
-     * @return The created Product aggregate
+     * @param id Client-provided unique identifier
+     * @param sku Stock keeping unit
+     * @param name Human-readable name
+     * @param description Optional description
+     * @param priceInCents Price expressed in whole integer cents
+     * @param currency ISO-4217 3-letter currency code
+     * @return Created Product aggregate
      */
-    Product createProduct(String sku, String name, String description, BigDecimal price, String currency);
+    Product createProduct(
+            UUID id,
+            String sku,
+            String name,
+            String description,
+            Integer priceInCents,
+            String currency
+    );
 }

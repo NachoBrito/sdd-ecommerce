@@ -4,7 +4,6 @@ import es.nachobrito.sdd.ecommerce.domain.model.Product;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.serde.annotation.Serdeable;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -15,7 +14,7 @@ import java.util.UUID;
  * @param sku Stock keeping unit
  * @param name Product name
  * @param description Detailed description
- * @param price Selling price
+ * @param priceInCents Selling price in integer cents
  * @param currency Currency code
  * @param status Lifecycle status
  * @param createdAt Creation timestamp
@@ -27,7 +26,7 @@ public record ProductResponse(
         String sku,
         String name,
         @Nullable String description,
-        BigDecimal price,
+        Integer priceInCents,
         String currency,
         String status,
         Instant createdAt,
@@ -46,7 +45,7 @@ public record ProductResponse(
                 product.sku(),
                 product.name(),
                 product.description(),
-                product.price(),
+                product.priceInCents(),
                 product.currency(),
                 product.status().name(),
                 product.createdAt(),

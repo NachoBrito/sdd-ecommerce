@@ -1,0 +1,12 @@
+/00-speckit.all
+
+Two changes to the Product aggregate:
+
+- We use client-side id generation. 
+    - Make the id a required parameter in the create product endpoint
+    - Implement proper validation in every layer: controller, service and repository
+
+- We express prices in cents:
+    - Rename the field to priceInCents
+    - Change the type to integer
+    - Add proper validation in every layer: controller, service and repository

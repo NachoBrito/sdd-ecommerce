@@ -1,0 +1,178 @@
+openapi: 3.1.0
+info:
+  title: SDD Ecommerce - Product Aggregate API
+  version: 0.2.0
+  description: Updated REST API for Product aggregate supporting client-side ID generation and integer cent pricing.
+paths:
+  /v1/products:
+    post:
+      summary: Create a product with client-generated ID
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Product successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Invalid request payload (missing ID, non-positive priceInCents, invalid SKU/currency)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - product with the supplied ID already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: List all products
+      operationId: listProducts
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+
+  /v1/products/{id}:
+    get:
+      summary: Get product by ID
+      operationId: getProductById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreateProductRequest:
+      type: object
+      required:
+        - id
+        - sku
+        - name
+        - priceInCents
+        - currency
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+          description: Client-generated unique identifier
+        sku:
+          type: string
+          pattern: '^[A-Z0-9-]{3,32}$'
+          example: 'PROD-1001'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 128
+          example: 'Mechanical Keyboard'
+        description:
+          type: string
+          maxLength: 1024
+          example: 'Wireless RGB mechanical keyboard'
+        priceInCents:
+          type: integer
+          minimum: 1
+          example: 9999
+          description: Price in whole cents ($99.99 = 9999)
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: 'USD'
+
+    ProductResponse:
+      type: object
+      required:
+        - id
+        - sku
+        - name
+        - priceInCents
+        - currency
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: '123e4567-e89b-12d3-a456-426614174000'
+        sku:
+          type: string
+          example: 'PROD-1001'
+        name:
+          type: string
+          example: 'Mechanical Keyboard'
+        description:
+          type: string
+          example: 'Wireless RGB mechanical keyboard'
+        priceInCents:
+          type: integer
+          example: 9999
+        currency:
+          type: string
+          example: 'USD'
+        status:
+          type: string
+          enum: [DRAFT, ACTIVE, ARCHIVED]
+          example: 'DRAFT'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - traceId
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: 'Bad Request'
+        message:
+          type: string
+          example: 'priceInCents must be at least 1 cent'
+        traceId:
+          type: string

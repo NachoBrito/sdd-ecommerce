@@ -31,6 +31,11 @@ public class ProductPersistenceAdapter implements ProductRepositoryPort {
     @Override
     public Product save(final Product product) {
         Objects.requireNonNull(product, "product must not be null");
+        Objects.requireNonNull(product.id(), "product id must not be null");
+        if (product.priceInCents() == null || product.priceInCents() < Product.MIN_PRICE_IN_CENTS) {
+            throw new IllegalArgumentException("product priceInCents must be at least " + Product.MIN_PRICE_IN_CENTS);
+        }
+
         final ProductEntity entity = toEntity(product);
         final ProductEntity saved = repository.existsById(product.id())
                 ? repository.update(entity)
@@ -65,7 +70,7 @@ public class ProductPersistenceAdapter implements ProductRepositoryPort {
                 domain.sku(),
                 domain.name(),
                 domain.description(),
-                domain.price(),
+                domain.priceInCents(),
                 domain.currency(),
                 domain.status().name(),
                 domain.createdAt(),
@@ -79,7 +84,7 @@ public class ProductPersistenceAdapter implements ProductRepositoryPort {
                 entity.getSku(),
                 entity.getName(),
                 entity.getDescription(),
-                entity.getPrice(),
+                entity.getPriceInCents(),
                 entity.getCurrency(),
                 ProductStatus.valueOf(entity.getStatus()),
                 entity.getCreatedAt(),
