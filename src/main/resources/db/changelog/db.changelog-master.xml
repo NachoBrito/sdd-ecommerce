@@ -7,5 +7,6 @@
 
   <include file="changes/001-create-products-table.xml" relativeToChangelogFile="true"/>
   <include file="changes/002-add-price-in-cents.xml" relativeToChangelogFile="true"/>
+  <include file="changes/003-create-orders-tables.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

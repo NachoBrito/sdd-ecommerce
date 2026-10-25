@@ -1,0 +1,308 @@
+openapi: 3.1.0
+info:
+  title: SDD E-Commerce Orders Management API
+  description: REST API for order creation, retrieval, and listing in the SDD E-Commerce Platform.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development environment
+
+paths:
+  /v1/orders:
+    post:
+      summary: Create a new order
+      description: Creates an order with client-supplied UUID, delivery and invoice addresses, and order lines.
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Order successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Validation error or invalid order details (e.g., mismatched amounts, missing fields)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Order with the provided ID already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      summary: List all orders
+      description: Retrieves a list of all persisted orders.
+      operationId: listOrders
+      responses:
+        '200':
+          description: List of orders successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderResponse'
+
+  /v1/orders/{id}:
+    get:
+      summary: Get order by ID
+      description: Retrieves the complete details of a specific order by its unique identifier.
+      operationId: getOrder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the order (UUID)
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order found and returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Invalid UUID format provided in path parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreateOrderRequest:
+      type: object
+      required:
+        - id
+        - customerName
+        - customerEmail
+        - deliveryAddress
+        - invoiceAddress
+        - lines
+        - totalAmountInCents
+        - currency
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        customerName:
+          type: string
+          example: "John Doe"
+        customerEmail:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        deliveryAddress:
+          $ref: '#/components/schemas/DeliveryAddressDto'
+        invoiceAddress:
+          $ref: '#/components/schemas/InvoiceAddressDto'
+        lines:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderLineDto'
+        totalAmountInCents:
+          type: integer
+          minimum: 1
+          example: 3998
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          example: "EUR"
+
+    DeliveryAddressDto:
+      type: object
+      required:
+        - name
+        - telephone
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          example: "John Doe"
+        telephone:
+          type: string
+          maxLength: 32
+          example: "+34600112233"
+        street:
+          type: string
+          maxLength: 255
+          example: "Gran Via 1"
+        complement:
+          type: string
+          maxLength: 255
+          nullable: true
+          example: "3rd Floor, Apt 2"
+        city:
+          type: string
+          maxLength: 100
+          example: "Madrid"
+        state:
+          type: string
+          maxLength: 100
+          example: "Madrid"
+        zipCode:
+          type: string
+          maxLength: 20
+          example: "28013"
+        country:
+          type: string
+          maxLength: 100
+          example: "Spain"
+
+    InvoiceAddressDto:
+      type: object
+      required:
+        - name
+        - vatNumber
+        - telephone
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          example: "Acme Corp"
+        vatNumber:
+          type: string
+          maxLength: 32
+          example: "ESB12345678"
+        telephone:
+          type: string
+          maxLength: 32
+          example: "+34911223344"
+        street:
+          type: string
+          maxLength: 255
+          example: "Paseo de la Castellana 100"
+        complement:
+          type: string
+          maxLength: 255
+          nullable: true
+          example: "Office 4B"
+        city:
+          type: string
+          maxLength: 100
+          example: "Madrid"
+        state:
+          type: string
+          maxLength: 100
+          example: "Madrid"
+        zipCode:
+          type: string
+          maxLength: 20
+          example: "28046"
+        country:
+          type: string
+          maxLength: 100
+          example: "Spain"
+
+    OrderLineDto:
+      type: object
+      required:
+        - productId
+        - quantity
+        - unitPriceInCents
+        - lineTotalInCents
+      properties:
+        productId:
+          type: string
+          format: uuid
+          example: "7e59676e-82b2-4d2c-880c-7871b6d05f32"
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+        unitPriceInCents:
+          type: integer
+          minimum: 1
+          example: 1999
+        lineTotalInCents:
+          type: integer
+          minimum: 1
+          example: 3998
+
+    OrderResponse:
+      type: object
+      required:
+        - id
+        - customerName
+        - customerEmail
+        - date
+        - status
+        - totalAmountInCents
+        - currency
+        - deliveryAddress
+        - invoiceAddress
+        - lines
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        customerName:
+          type: string
+          example: "John Doe"
+        customerEmail:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        date:
+          type: string
+          format: date-time
+          example: "2026-10-25T14:30:00Z"
+        status:
+          type: string
+          enum: [CREATED, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
+          example: "CREATED"
+        totalAmountInCents:
+          type: integer
+          example: 3998
+        currency:
+          type: string
+          example: "EUR"
+        deliveryAddress:
+          $ref: '#/components/schemas/DeliveryAddressDto'
+        invoiceAddress:
+          $ref: '#/components/schemas/InvoiceAddressDto'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineDto'
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: "Order with ID already exists"

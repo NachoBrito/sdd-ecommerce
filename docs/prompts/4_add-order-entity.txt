@@ -1,0 +1,14 @@
+/00-speckit.all
+
+Define a new feature for the e-commerce system: orders management. 
+
+The order aggregate is composed of the following entities:
+- order (id, customerName, customerEmail, date, status, totalAmountInCents, currency)
+- deliveryAddress (name, telephone, street,complement, city, state, zipCode, country)
+- invoiceAddress (name, vatNumber, telephone, street,complement, city, state, zipCode, country)
+- orderLine (productId, quantity, unitPriceInCents, lineTotalInCents)
+
+Implement the following use cases:
+- Create Order: Creates a new order with the given details.
+- Get Order: Retrieves an order by its ID.
+- List Orders: Retrieves all orders.

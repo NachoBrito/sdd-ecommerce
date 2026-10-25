@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="003-create-orders-tables" author="sdd-ecommerce">
+    <!-- 1. Create orders table -->
+    <createTable tableName="orders">
+      <column name="id" type="VARCHAR(36)">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="pk_orders"/>
+      </column>
+      <column name="customer_name" type="VARCHAR(128)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="customer_email" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="date" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="VARCHAR(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="total_amount_in_cents" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="currency" type="VARCHAR(3)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- Delivery Address -->
+      <column name="delivery_name" type="VARCHAR(128)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="delivery_telephone" type="VARCHAR(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="delivery_street" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="delivery_complement" type="VARCHAR(255)"/>
+      <column name="delivery_city" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="delivery_state" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="delivery_zip_code" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="delivery_country" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- Invoice Address -->
+      <column name="invoice_name" type="VARCHAR(128)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="invoice_vat_number" type="VARCHAR(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="invoice_telephone" type="VARCHAR(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="invoice_street" type="VARCHAR(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="invoice_complement" type="VARCHAR(255)"/>
+      <column name="invoice_city" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="invoice_state" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="invoice_zip_code" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="invoice_country" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <!-- Audit Timestamps -->
+      <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- 2. Create order_lines table -->
+    <createTable tableName="order_lines">
+      <column name="id" type="VARCHAR(36)">
+        <constraints primaryKey="true" nullable="false" primaryKeyName="pk_order_lines"/>
+      </column>
+      <column name="order_id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="product_id" type="VARCHAR(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="quantity" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="unit_price_in_cents" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="line_total_in_cents" type="INT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <!-- 3. Add foreign key from order_lines to orders -->
+    <addForeignKeyConstraint
+      baseTableName="order_lines"
+      baseColumnNames="order_id"
+      constraintName="fk_order_lines_order"
+      referencedTableName="orders"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+
+    <!-- Rollback actions -->
+    <rollback>
+      <dropTable tableName="order_lines"/>
+      <dropTable tableName="orders"/>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>
