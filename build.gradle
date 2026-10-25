@@ -6,6 +6,7 @@ plugins {
     id("checkstyle")
     id("pmd")
     id("com.github.spotbugs") version "6.1.1"
+    id("jacoco")
 }
 
 group = "es.nachobrito.sdd.ecommerce"
@@ -81,6 +82,7 @@ tasks.withType(Test).configureEach {
         events("passed", "skipped", "failed")
         showStandardStreams = false
     }
+    finalizedBy(tasks.named("jacocoTestReport"))
 }
 
 checkstyle {
@@ -168,4 +170,52 @@ tasks.named("check") {
     dependsOn(tasks.withType(Checkstyle))
     dependsOn(tasks.withType(Pmd))
     dependsOn(tasks.withType(com.github.spotbugs.snom.SpotBugsTask))
+    dependsOn(tasks.named("jacocoTestCoverageVerification"))
+}
+
+jacoco {
+    toolVersion = "0.8.13"
+}
+
+def jacocoExcludes = [
+    "es/nachobrito/sdd/ecommerce/Application.*",
+    "**/generated/**",
+    "**/*\$*"
+]
+
+tasks.named("jacocoTestReport", JacocoReport) {
+    dependsOn(tasks.named("test"))
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(
+        sourceSets.main.output.classesDirs.collect {
+            fileTree(dir: it, exclude: jacocoExcludes)
+        }
+    )
+}
+
+tasks.named("jacocoTestCoverageVerification", JacocoCoverageVerification) {
+    dependsOn(tasks.named("test"))
+    classDirectories.setFrom(
+        sourceSets.main.output.classesDirs.collect {
+            fileTree(dir: it, exclude: jacocoExcludes)
+        }
+    )
+    violationRules {
+        rule {
+            element = "BUNDLE"
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = 0.80
+            }
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = 0.80
+            }
+        }
+    }
 }
