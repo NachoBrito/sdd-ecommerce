@@ -1,0 +1,9 @@
+/00-speckit.all
+
+Notification system works right now using Micronaut events. We want this to be fully asyncrhronous using RabbitMQ:
+
+- The notification service should publish events to RabbitMQ when an order is created, updated or cancelled.
+- The events should be consumed by a new RabbitMQ consumer that will send the notifications.
+- The consumer is part of the same notification service.
+
+Besides unit testsing, write an integration test using Micronaut test resources to spin up a RabbitMQ instance for testing.

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OrderCancelledEvent",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "orderId",
+    "orderStatus",
+    "timestamp"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "eventType": {
+      "type": "string",
+      "const": "order.cancelled.v1"
+    },
+    "orderId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "orderStatus": {
+      "type": "string",
+      "const": "CANCELLED"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "traceId": {
+      "type": "string"
+    }
+  }
+}

@@ -34,8 +34,11 @@ liquibase:
       change-log: classpath:db/changelog/db.changelog-master.xml
 
 rabbitmq:
-  addresses:
-    - localhost:5672
+  exchange:
+    orders: ${RABBITMQ_ORDERS_EXCHANGE:ecommerce.orders.exchange}
+  queue:
+    notifications: ${RABBITMQ_ORDERS_NOTIFICATIONS_QUEUE:ecommerce.orders.notifications.queue}
+
 
 endpoints:
   all:

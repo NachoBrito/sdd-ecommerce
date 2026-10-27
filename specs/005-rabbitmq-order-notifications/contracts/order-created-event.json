@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OrderCreatedEvent",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "orderId",
+    "orderStatus",
+    "totalAmountInCents",
+    "currency",
+    "timestamp"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "eventType": {
+      "type": "string",
+      "const": "order.created.v1"
+    },
+    "orderId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "orderStatus": {
+      "type": "string",
+      "enum": ["CREATED"]
+    },
+    "totalAmountInCents": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "traceId": {
+      "type": "string"
+    }
+  }
+}

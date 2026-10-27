@@ -117,4 +117,55 @@ public record Order(
                 lines
         );
     }
+
+    /**
+     * Creates a new Order instance with an updated status.
+     *
+     * @param newStatus The new lifecycle status
+     * @return New Order instance with updated status
+     */
+    public Order updateStatus(final OrderStatus newStatus) {
+        Objects.requireNonNull(newStatus, "newStatus must not be null");
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new InvalidOrderException("Cannot update status of a cancelled order");
+        }
+        return new Order(
+                this.id,
+                this.customerName,
+                this.customerEmail,
+                this.date,
+                newStatus,
+                this.totalAmountInCents,
+                this.currency,
+                this.deliveryAddress,
+                this.invoiceAddress,
+                this.lines
+        );
+    }
+
+    /**
+     * Creates a new Order instance with CANCELLED status.
+     *
+     * @return New Order instance with CANCELLED status
+     */
+    public Order cancel() {
+        if (this.status == OrderStatus.CANCELLED) {
+            throw new InvalidOrderException("Order is already cancelled");
+        }
+        if (this.status == OrderStatus.DELIVERED) {
+            throw new InvalidOrderException("Cannot cancel an already delivered order");
+        }
+        return new Order(
+                this.id,
+                this.customerName,
+                this.customerEmail,
+                this.date,
+                OrderStatus.CANCELLED,
+                this.totalAmountInCents,
+                this.currency,
+                this.deliveryAddress,
+                this.invoiceAddress,
+                this.lines
+        );
+    }
 }

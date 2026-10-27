@@ -126,8 +126,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Order Confirmation</h1>
-            <p>Thank you for your order, {{customerName}}! Here are your order details.</p>
+            <h1>{{statusTitle}}</h1>
+            <p>{{statusSubtitle}}</p>
         </div>
 
         <div class="meta-grid">
@@ -138,6 +138,10 @@
             <div class="meta-card">
                 <strong>Order Date</strong>
                 <span>{{orderDate}}</span>
+            </div>
+            <div class="meta-card">
+                <strong>Status</strong>
+                <span>{{orderStatus}}</span>
             </div>
         </div>
 

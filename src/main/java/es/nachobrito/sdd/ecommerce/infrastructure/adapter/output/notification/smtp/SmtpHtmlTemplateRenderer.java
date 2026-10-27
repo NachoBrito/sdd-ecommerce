@@ -18,6 +18,9 @@ import java.util.Objects;
 public class SmtpHtmlTemplateRenderer {
 
     private static final String TEMPLATE_PATH = "templates/order-confirmation.html";
+    private static final String STATUS_CANCELLED = "CANCELLED";
+    private static final String STATUS_CREATED = "CREATED";
+
     private final String cachedTemplate;
 
     public SmtpHtmlTemplateRenderer() {
@@ -34,6 +37,26 @@ public class SmtpHtmlTemplateRenderer {
         Objects.requireNonNull(notification, "notification must not be null");
 
         String rendered = cachedTemplate;
+        final String status = notification.status() != null ? notification.status() : STATUS_CREATED;
+        final String statusTitle;
+        final String statusSubtitle;
+        if (STATUS_CANCELLED.equalsIgnoreCase(status)) {
+            statusTitle = "Order Cancelled";
+            statusSubtitle = "Your order has been cancelled, " + escapeHtml(notification.customerName())
+                    + ". Here are the details of the cancelled order.";
+        } else if (STATUS_CREATED.equalsIgnoreCase(status)) {
+            statusTitle = "Order Confirmation";
+            statusSubtitle = "Thank you for your order, " + escapeHtml(notification.customerName())
+                    + "! Here are your order details.";
+        } else {
+            statusTitle = "Order Updated";
+            statusSubtitle = "Your order has been updated, " + escapeHtml(notification.customerName())
+                    + ". Current status: " + escapeHtml(status) + ".";
+        }
+
+        rendered = rendered.replace("{{statusTitle}}", statusTitle);
+        rendered = rendered.replace("{{statusSubtitle}}", statusSubtitle);
+        rendered = rendered.replace("{{orderStatus}}", escapeHtml(status));
         rendered = rendered.replace("{{orderId}}", escapeHtml(notification.orderId().toString()));
         rendered = rendered.replace("{{orderDate}}", escapeHtml(notification.orderDate().toString()));
         rendered = rendered.replace("{{customerName}}", escapeHtml(notification.customerName()));

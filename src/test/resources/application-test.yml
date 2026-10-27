@@ -36,6 +36,11 @@ datasources:
 
 rabbitmq:
   enabled: true
+  exchange:
+    orders: ecommerce.orders.exchange
+  queue:
+    notifications: ecommerce.orders.notifications.queue
+
 
 liquibase:
   datasources:

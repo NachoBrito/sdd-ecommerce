@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import java.util.UUID;
 
 @DisplayName("OrderCreatedNotificationListener Unit Tests")
+@SuppressWarnings({"deprecation", "removal"})
 class OrderCreatedNotificationListenerTest {
 
     @Test

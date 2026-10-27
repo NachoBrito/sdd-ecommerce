@@ -66,6 +66,19 @@ class OrderTest {
         );
     }
 
+    private Order createValidOrder() {
+        return Order.create(
+                UUID.randomUUID(),
+                DEFAULT_CUSTOMER_NAME,
+                DEFAULT_CUSTOMER_EMAIL,
+                createValidDeliveryAddress(),
+                createValidInvoiceAddress(),
+                List.of(createValidOrderLine(1, 1000)),
+                1000,
+                DEFAULT_CURRENCY
+        );
+    }
+
     @Test
     @DisplayName("Should create order with valid parameters in CREATED status")
     void shouldCreateOrderInCreatedStatus() {
@@ -273,5 +286,50 @@ class OrderTest {
                 "28001",
                 DEFAULT_COUNTRY
         ), "Invoice address with blank VAT number must fail");
+    }
+
+    @Test
+    @DisplayName("Should successfully update status of an active order")
+    void shouldUpdateStatusSuccessfully() {
+        final Order order = createValidOrder();
+        final Order updated = order.updateStatus(OrderStatus.CONFIRMED);
+
+        assertEquals(OrderStatus.CONFIRMED, updated.status(), "Order status must be updated to CONFIRMED");
+        assertEquals(order.id(), updated.id(), "Order ID must remain unchanged");
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating status of a cancelled order")
+    void shouldRejectStatusUpdateOnCancelledOrder() {
+        final Order order = createValidOrder();
+        final Order cancelled = order.cancel();
+
+        assertThrows(InvalidOrderException.class, () -> {
+            final Order ignored = cancelled.updateStatus(OrderStatus.SHIPPED);
+            assertNotNull(ignored, "Should never be reached due to exception");
+        }, "Updating status of a cancelled order must fail");
+    }
+
+    @Test
+    @DisplayName("Should successfully cancel an order")
+    void shouldCancelOrderSuccessfully() {
+        final Order order = createValidOrder();
+        final Order cancelled = order.cancel();
+
+        assertEquals(OrderStatus.CANCELLED, cancelled.status(), "Order status must be CANCELLED");
+    }
+
+    @Test
+    @DisplayName("Should throw exception when cancelling already cancelled or delivered order")
+    void shouldRejectCancellingCancelledOrDeliveredOrder() {
+        final Order order = createValidOrder();
+        final Order cancelled = order.cancel();
+
+        assertThrows(InvalidOrderException.class, cancelled::cancel,
+                "Cancelling an already cancelled order must fail");
+
+        final Order delivered = order.updateStatus(OrderStatus.DELIVERED);
+        assertThrows(InvalidOrderException.class, delivered::cancel,
+                "Cancelling a delivered order must fail");
     }
 }

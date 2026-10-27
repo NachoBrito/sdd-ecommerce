@@ -93,4 +93,17 @@ class HexagonalArchitectureTest {
 
         rule.check(importedClasses);
     }
+
+    @Test
+    @DisplayName("RabbitMQ framework dependencies must only reside in infrastructure layer")
+    void rabbitMqDependenciesMustOnlyResideInInfrastructure() {
+        final ArchRule rule = noClasses()
+                .that()
+                .resideOutsideOfPackage("..infrastructure..")
+                .should()
+                .dependOnClassesThat()
+                .resideInAnyPackage("io.micronaut.rabbitmq..", "com.rabbitmq..");
+
+        rule.check(importedClasses);
+    }
 }

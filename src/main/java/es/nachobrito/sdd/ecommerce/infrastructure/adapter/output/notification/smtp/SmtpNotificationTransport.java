@@ -16,6 +16,8 @@ public class SmtpNotificationTransport implements NotificationTransportPort {
 
     private static final Logger LOG = LoggerFactory.getLogger(SmtpNotificationTransport.class);
     private static final String TRANSPORT_NAME = "SMTP";
+    private static final String STATUS_CANCELLED = "CANCELLED";
+    private static final String STATUS_CREATED = "CREATED";
 
     private final SmtpConfiguration config;
     private final SmtpHtmlTemplateRenderer renderer;
@@ -55,7 +57,14 @@ public class SmtpNotificationTransport implements NotificationTransportPort {
                 notification.orderId(), notification.customerEmail());
 
         try {
-            final String subject = "Order Confirmation - " + notification.orderId();
+            final String subject;
+            if (STATUS_CANCELLED.equalsIgnoreCase(notification.status())) {
+                subject = "Order Cancelled - " + notification.orderId();
+            } else if (STATUS_CREATED.equalsIgnoreCase(notification.status())) {
+                subject = "Order Confirmation - " + notification.orderId();
+            } else {
+                subject = "Order Updated - " + notification.orderId();
+            }
             final String htmlContent = renderer.render(notification);
 
             smtpSender.sendMail(config.fromAddress(), notification.customerEmail(), subject, htmlContent);
