@@ -17,7 +17,8 @@ A production-grade, event-driven REST API for an e-commerce platform built with 
 - [How to Run Locally](#how-to-run-locally)
   - [Development Mode (with TestResources)](#development-mode-with-testresources)
   - [Configuring the Server Port](#configuring-the-server-port)
-  - [Running with Docker](#running-with-docker)
+  - [Full Stack with Docker Compose (Recommended)](#full-stack-with-docker-compose-recommended)
+  - [Running the Container Directly with Docker](#running-the-container-directly-with-docker)
 - [Testing with a REST Client](#testing-with-a-rest-client)
 - [Project Structure](#project-structure)
 - [Contribution & Commit Conventions](#contribution--commit-conventions)
@@ -188,9 +189,42 @@ MICRONAUT_SERVER_PORT=8085 make dev
 ./gradlew run --args="-micronaut.server.port=8085"
 ```
 
-### Running with Docker
+### Full Stack with Docker Compose (Recommended)
 
-To run the container built via `make docker-build`:
+To run the complete production-like stack locally with MariaDB 11.4, RabbitMQ (with management dashboard), Mailpit (local SMTP mock with web interface), and the E-Commerce service:
+
+```bash
+# Using Make (builds application image and starts all containers in detached mode)
+make compose-up
+
+# Or directly with Docker Compose
+docker compose up -d --build
+```
+
+#### Services & Web Consoles
+
+Once running, the following services and administration dashboards are immediately accessible:
+
+| Service | Protocol / Port | Dashboard / Endpoint URL |
+| :--- | :--- | :--- |
+| **SDD E-commerce API** | HTTP `8080` | Health: `http://localhost:8080/health`<br>Prometheus: `http://localhost:8080/prometheus` |
+| **RabbitMQ Management** | AMQP `5672` / HTTP `15672` | `http://localhost:15672` (Credentials: `guest` / `guest`) |
+| **Mailpit (SMTP Mock)** | SMTP `1025` / HTTP `8025` | `http://localhost:8025` (Inspect dispatched notification emails) |
+| **MariaDB** | MySQL/MariaDB `3306` | Database: `ecommerce`<br>User: `ecommerce`<br>Password: `ecommerce_secret` |
+
+#### Viewing Logs & Tear Down
+
+```bash
+# Follow logs across all containers in real time
+make compose-logs     # or: docker compose logs -f
+
+# Stop and remove all containers and networks
+make compose-down     # or: docker compose down
+```
+
+### Running the Container Directly with Docker
+
+To run only the application container built via `make docker-build` against existing external infrastructure:
 
 ```bash
 docker run --rm -p 8080:8080 \
@@ -198,7 +232,9 @@ docker run --rm -p 8080:8080 \
   -e DATASOURCES_DEFAULT_URL=jdbc:mariadb://<host>:3306/<db> \
   -e DATASOURCES_DEFAULT_USERNAME=<user> \
   -e DATASOURCES_DEFAULT_PASSWORD=<password> \
-  -e RABBITMQ_ADDRESSES_0=<rabbit_host>:5672 \
+  -e RABBITMQ_URI=amqp://<user>:<password>@<rabbit_host>:5672 \
+  -e SMTP_HOST=<smtp_host> \
+  -e SMTP_PORT=1025 \
   sdd-ecommerce:latest
 ```
 
@@ -322,6 +358,7 @@ curl -i http://localhost:8080/v1/products/1
 ├── settings.gradle                   # Root project name and Gradle plugins
 ├── version.txt                       # Semantic version tracker
 ├── Dockerfile                        # Multi-stage non-root container definition
+├── docker-compose.yml                # Full-stack composition (MariaDB, RabbitMQ, Mailpit, API)
 ├── config/
 │   ├── checkstyle/checkstyle.xml     # Checkstyle ruleset
 │   ├── pmd/pmd.xml                   # PMD ruleset

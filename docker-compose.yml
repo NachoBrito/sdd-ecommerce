@@ -1,0 +1,82 @@
+services:
+  mariadb:
+    image: mariadb:11.4
+    container_name: sdd-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ecommerce
+      MARIADB_USER: ecommerce
+      MARIADB_PASSWORD: ecommerce_secret
+      MARIADB_ROOT_PASSWORD: root_secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: sdd-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"     # AMQP protocol
+      - "15672:15672"   # RabbitMQ Web Management Dashboard
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  smtp:
+    image: axllent/mailpit:latest
+    container_name: sdd-smtp
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP port
+      - "8025:8025"   # Webmail UI
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8025/api/v1/info"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sdd-ecommerce-service
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      MICRONAUT_SERVER_PORT: 8080
+      DATASOURCES_DEFAULT_URL: jdbc:mariadb://mariadb:3306/ecommerce
+      DATASOURCES_DEFAULT_USERNAME: ecommerce
+      DATASOURCES_DEFAULT_PASSWORD: ecommerce_secret
+      RABBITMQ_URI: amqp://guest:guest@rabbitmq:5672
+      SMTP_ENABLED: "true"
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
+      SMTP_FROM_ADDRESS: no-reply@ecommerce.example.com
+      SMTP_SSL: "false"
+      SMTP_STARTTLS: "false"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      smtp:
+        condition: service_healthy
+
+volumes:
+  mariadb_data:
+  rabbitmq_data:
