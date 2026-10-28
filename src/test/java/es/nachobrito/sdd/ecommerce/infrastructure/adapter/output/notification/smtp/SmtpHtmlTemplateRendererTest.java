@@ -105,4 +105,52 @@ class SmtpHtmlTemplateRendererTest {
         assertTrue(html.contains("Main Street 1<br>"));
         assertFalse(html.contains("null"));
     }
+
+    @Test
+    @DisplayName("Should render Order Cancelled header when status is CANCELLED")
+    void shouldRenderCancelledOrderStatus() {
+        final UUID orderId = UUID.randomUUID();
+        final NotificationAddress address = new NotificationAddress(
+                "Charlie", "+34600000000", "Street", null, "City", "State", "28001", "Spain", null
+        );
+        final NotificationLineItem line = new NotificationLineItem(UUID.randomUUID(), 1, 1000, 1000);
+        final OrderNotification notification = new OrderNotification(
+                orderId, "Charlie", "charlie@example.com", Instant.now(), "CANCELLED",
+                1000, "EUR", address, address, List.of(line), null
+        );
+
+        final String html = renderer.render(notification);
+
+        assertNotNull(html);
+        assertTrue(html.contains("Order Cancelled"));
+        assertTrue(html.contains("Your order has been cancelled, Charlie."));
+    }
+
+    @Test
+    @DisplayName("Should render Order Updated header when status is not CREATED or CANCELLED")
+    void shouldRenderUpdatedOrderStatus() {
+        final UUID orderId = UUID.randomUUID();
+        final NotificationAddress address = new NotificationAddress(
+                "Diana", "+34600000000", "Street", null, "City", "State", "28001", "Spain", null
+        );
+        final NotificationLineItem line = new NotificationLineItem(UUID.randomUUID(), 1, 1000, 1000);
+        final OrderNotification notification = new OrderNotification(
+                orderId, "Diana", "diana@example.com", Instant.now(), "SHIPPED",
+                1000, "EUR", address, address, List.of(line), null
+        );
+
+        final String html = renderer.render(notification);
+
+        assertNotNull(html);
+        assertTrue(html.contains("Order Updated"));
+        assertTrue(html.contains("Current status: SHIPPED."));
+        assertTrue(html.contains("0.00 EUR"));
+    }
+
+    @Test
+    @DisplayName("Should reject null notification")
+    void shouldRejectNullNotification() {
+        org.junit.jupiter.api.Assertions.assertThrows(NullPointerException.class, () -> renderer.render(null));
+    }
 }
+

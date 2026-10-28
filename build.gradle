@@ -7,6 +7,7 @@ plugins {
     id("pmd")
     id("com.github.spotbugs") version "6.1.1"
     id("jacoco")
+    id("info.solidsoft.pitest") version "1.19.0"
 }
 
 group = "es.nachobrito.sdd.ecommerce"
@@ -171,6 +172,7 @@ tasks.named("check") {
     dependsOn(tasks.withType(Pmd))
     dependsOn(tasks.withType(com.github.spotbugs.snom.SpotBugsTask))
     dependsOn(tasks.named("jacocoTestCoverageVerification"))
+    dependsOn(tasks.named("pitest"))
 }
 
 jacoco {
@@ -209,13 +211,27 @@ tasks.named("jacocoTestCoverageVerification", JacocoCoverageVerification) {
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = 0.80
+                minimum = 0.90
             }
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
-                minimum = 0.80
+                minimum = 0.90
             }
         }
     }
 }
+
+pitest {
+    junit5PluginVersion = "1.2.3"
+    pitestVersion = "1.30.1"
+    targetClasses = ["es.nachobrito.sdd.ecommerce.*"]
+    targetTests = ["es.nachobrito.sdd.ecommerce.*"]
+    threads = 4
+    mutationThreshold = 85
+    coverageThreshold = 90
+    testStrengthThreshold = 90
+    outputFormats = ["HTML", "XML"]
+    timestampedReports = false
+}
+

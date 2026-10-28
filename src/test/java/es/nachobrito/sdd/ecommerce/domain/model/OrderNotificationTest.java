@@ -81,6 +81,17 @@ class OrderNotificationTest {
     }
 
     @Test
+    @DisplayName("Should accept notification with exact minimum total amount")
+    void shouldAcceptExactMinimumTotalAmount() {
+        final NotificationLineItem line = new NotificationLineItem(UUID.randomUUID(), 1, 1, 1);
+        final OrderNotification notification = new OrderNotification(
+                orderId, "Alice", "alice@example.com", Instant.now(), "CREATED",
+                1, "EUR", deliveryAddress, invoiceAddress, List.of(line), null
+        );
+        assertEquals(1, notification.totalAmountInCents());
+    }
+
+    @Test
     @DisplayName("Should reject invalid currency code length")
     void shouldRejectInvalidCurrencyCodeLength() {
         assertThrows(InvalidOrderException.class, () -> new OrderNotification(

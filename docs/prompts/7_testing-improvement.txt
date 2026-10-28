@@ -1,0 +1,14 @@
+Test quality improvement:
+
+1. Increase jacoco coverage percentage to 90%
+
+2. Introduce mutation testing to increase the quality of our tests:
+    - Configure the PIT (https://pitest.org/) library and the pitest gradle plugin.
+    - Configure the plugin to run in the `check` task
+    - Set the following thresholds in the pitest plugin configuration:
+        - mutationThreshold: 85%
+        - coverageThreshold: 90%
+        - testStrengthThreshold: 90%
+    
+3. If the check task fails after these changes, do not fix any issue, but generate a report of the issues found and the suggested changes to fix them.
+Do not modify the code without explicit approval.

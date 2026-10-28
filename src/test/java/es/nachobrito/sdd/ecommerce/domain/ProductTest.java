@@ -120,6 +120,21 @@ class ProductTest {
     }
 
     @Test
+    @DisplayName("Should accept product with exact minimum price in cents")
+    void shouldAcceptExactMinimumPriceInCents() {
+        final UUID id = UUID.randomUUID();
+        final Product product = Product.create(
+                id,
+                "SKU-MIN-1",
+                "Penny Candy",
+                "Sample product at minimum price",
+                Product.MIN_PRICE_IN_CENTS,
+                DEFAULT_CURRENCY
+        );
+        assertEquals(Product.MIN_PRICE_IN_CENTS, product.priceInCents(), "Product price must match exact minimum");
+    }
+
+    @Test
     @DisplayName("Should reject invalid or empty SKU")
     void shouldRejectEmptySku() {
         final UUID id = UUID.randomUUID();

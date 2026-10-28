@@ -1,6 +1,7 @@
 package es.nachobrito.sdd.ecommerce.domain;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -286,6 +287,63 @@ class OrderTest {
                 "28001",
                 DEFAULT_COUNTRY
         ), "Invoice address with blank VAT number must fail");
+    }
+
+    @Test
+    @DisplayName("Should accept valid invoice address at exact maximum field boundaries")
+    void shouldAcceptValidInvoiceAddressAtExactBoundaries() {
+        assertDoesNotThrow(() -> new InvoiceAddress(
+                "A".repeat(128),
+                "V".repeat(32),
+                "T".repeat(32),
+                "S".repeat(255),
+                "C".repeat(255),
+                "M".repeat(100),
+                "P".repeat(100),
+                "Z".repeat(20),
+                "E".repeat(100)
+        ));
+    }
+
+    @Test
+    @DisplayName("Should reject invoice address exceeding field length boundaries")
+    void shouldRejectInvoiceAddressExceedingFieldBoundaries() {
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(129), "V".repeat(32), "T".repeat(32), "S".repeat(255), null,
+                "M".repeat(100), "P".repeat(100), "Z".repeat(20), "E".repeat(100)
+        ));
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(128), "V".repeat(33), "T".repeat(32), "S".repeat(255), null,
+                "M".repeat(100), "P".repeat(100), "Z".repeat(20), "E".repeat(100)
+        ));
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(128), "V".repeat(32), "T".repeat(33), "S".repeat(255), null,
+                "M".repeat(100), "P".repeat(100), "Z".repeat(20), "E".repeat(100)
+        ));
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(128), "V".repeat(32), "T".repeat(32), "S".repeat(256), null,
+                "M".repeat(100), "P".repeat(100), "Z".repeat(20), "E".repeat(100)
+        ));
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(128), "V".repeat(32), "T".repeat(32), "S".repeat(255), "C".repeat(256),
+                "M".repeat(100), "P".repeat(100), "Z".repeat(20), "E".repeat(100)
+        ));
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(128), "V".repeat(32), "T".repeat(32), "S".repeat(255), null,
+                "M".repeat(101), "P".repeat(100), "Z".repeat(20), "E".repeat(100)
+        ));
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(128), "V".repeat(32), "T".repeat(32), "S".repeat(255), null,
+                "M".repeat(100), "P".repeat(101), "Z".repeat(20), "E".repeat(100)
+        ));
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(128), "V".repeat(32), "T".repeat(32), "S".repeat(255), null,
+                "M".repeat(100), "P".repeat(100), "Z".repeat(21), "E".repeat(100)
+        ));
+        assertThrows(InvalidOrderException.class, () -> new InvoiceAddress(
+                "A".repeat(128), "V".repeat(32), "T".repeat(32), "S".repeat(255), null,
+                "M".repeat(100), "P".repeat(100), "Z".repeat(20), "E".repeat(101)
+        ));
     }
 
     @Test

@@ -2,6 +2,8 @@ package es.nachobrito.sdd.ecommerce.infrastructure;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.http.ContentType;
@@ -201,4 +203,73 @@ class ProductControllerIntegrationTest {
                 .then()
                 .statusCode(400);
     }
+
+    @Test
+    @DisplayName("GET /v1/products lists all products with 200 OK")
+    void listProductsReturns200(final RequestSpecification spec) {
+        final UUID id = UUID.randomUUID();
+        final String sku = PREFIX_SKU + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT);
+        final Map<String, Object> body = Map.of(
+                FIELD_ID, id.toString(),
+                FIELD_SKU, sku,
+                FIELD_NAME, "Listable Product",
+                FIELD_PRICE_IN_CENTS, 2_000,
+                FIELD_CURRENCY, DEFAULT_CURRENCY
+        );
+
+        given(spec)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .when()
+                .post(V1_PRODUCTS)
+                .then()
+                .statusCode(201);
+
+        given(spec)
+                .when()
+                .get(V1_PRODUCTS)
+                .then()
+                .statusCode(200)
+                .body("size()", greaterThanOrEqualTo(1));
+    }
+
+    @Test
+    @DisplayName("GET /v1/products/{id} returns 200 when exists and 404 when not found")
+    void getProductByIdReturns200And404(final RequestSpecification spec) {
+        final UUID id = UUID.randomUUID();
+        final String sku = PREFIX_SKU + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT);
+        final Map<String, Object> body = Map.of(
+                FIELD_ID, id.toString(),
+                FIELD_SKU, sku,
+                FIELD_NAME, "Specific Product",
+                FIELD_PRICE_IN_CENTS, 3_500,
+                FIELD_CURRENCY, DEFAULT_CURRENCY
+        );
+
+        given(spec)
+                .contentType(ContentType.JSON)
+                .body(body)
+                .when()
+                .post(V1_PRODUCTS)
+                .then()
+                .statusCode(201);
+
+        given(spec)
+                .when()
+                .get(V1_PRODUCTS + "/" + id)
+                .then()
+                .statusCode(200)
+                .body("id", equalTo(id.toString()))
+                .body("sku", equalTo(sku))
+                .body("name", equalTo("Specific Product"))
+                .body("priceInCents", equalTo(3500))
+                .body("status", notNullValue());
+
+        given(spec)
+                .when()
+                .get(V1_PRODUCTS + "/" + UUID.randomUUID())
+                .then()
+                .statusCode(404);
+    }
 }
+
